@@ -3,15 +3,15 @@
     <mavon-editor  
       v-model="value"
       :external-link="externalLink" 
-      :ishljs="editorStyle.ishljs || interStyle.ishljs"  
-      :codeStyle="editorStyle.codeStyle || interStyle.codeStyle" 
-      :boxShadowStyle="editorStyle.boxShadowStyle || interStyle.boxShadowStyle" 
-      :boxShadow="editorStyle.boxShadow || interStyle.boxShadow" 
-      :shortCut="editorStyle.shortCut || interStyle.shortCut"
-      :placeholder="editorStyle.placeholder || interStyle.placeholder"
-      :toolbarsFlag="editorStyle.toolbarsFlag || interStyle.toolbarsFlag"
-      :editable="editorStyle.editable || interStyle.editable" 
-      :navigation="editorStyle.navigation || interStyle.navigation"
+      :ishljs="interStyle.ishljs"  
+      :codeStyle="interStyle.codeStyle" 
+      :boxShadowStyle="interStyle.boxShadowStyle" 
+      :boxShadow="interStyle.boxShadow" 
+      :shortCut="interStyle.shortCut"
+      :placeholder="interStyle.placeholder"
+      :toolbarsFlag="interStyle.toolbarsFlag"
+      :editable="interStyle.editable" 
+      :navigation="interStyle.navigation"
       @change="changeDoc"
       @save="actions.save && actions.save()"
       @fullScreen="actions.fullScreen && actions.fullScreen()"
@@ -48,12 +48,6 @@ export default {
           return null
         }
       },
-      editorStyle: {
-        type: Object,
-        default(){
-          return {}
-        }
-      },
       actions: {
         type: Object,
         default(){
@@ -71,7 +65,7 @@ export default {
         interStyle: {
           width: "",
           codeStyle: 'github',
-          boxShadow: true,
+          boxShadow: false,
           boxShadowStyle:'0 0 5px rgba(0,0,0,0.3)',
           tabSize: 2,
           shortCut: true,

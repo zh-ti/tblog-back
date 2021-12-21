@@ -1,6 +1,6 @@
 <template>
   <div id="docEdit">
-      <md-editor @editing="docEdit" :content="docContent" :actions="editorActions">
+      <md-editor ref="editor" class="md-editor" @editing="docEdit" :content="docContent" :actions="editorActions">
            <button
             type="button"
             @click="dialogFormVisible = true"
@@ -47,7 +47,8 @@ export default {
             docContent: "",
             editorActions: {
                 save(){
-                    console.log("save");
+                    console.log('saved')
+                    return true
                 },
                 autoSave: 5000
             },
@@ -70,6 +71,20 @@ export default {
             }
         }
     },
+    beforeRouteLeave(to, from, next){
+      this.$store.commit('changeLoadState', true)
+      let result = this.editorActions.save()
+      if(result){
+        this.$message({
+            message: '已自动保存',
+            type: 'success'
+        });
+      }
+      next()
+    },
+    created(){
+        console.log(this.$route.params.docId);
+    },
     methods: {
         publish(){
             this.$refs.form.validate((valid) => {
@@ -90,5 +105,8 @@ export default {
 </script>
 
 <style>
-    
+    .md-editor{
+        border-radius: 7px;
+        box-shadow: 0 0 3px #cecece;
+    }
 </style>

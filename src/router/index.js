@@ -20,6 +20,18 @@ const routes = [
     path: "/docEdit",
     component: () => import("views/main/document/DocEdit"),
   },
+  {
+    path: "/docEdit/:docId",
+    component: () => import("views/main/document/DocEdit"),
+  },
+  {
+    path: "/docManage",
+    component: () => import("views/main/document/DocManage"),
+  },
+  {
+    path: "/docDraft",
+    component: () => import("views/main/document/DocDraft"),
+  },
 ];
 
 const router = new VueRouter({ routes, mode: "history" });

@@ -3,23 +3,21 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-import docCategory from "data/docCategory";
-
 const store = new Vuex.Store({
   state: {
-    viewContent: "home",
-    docCategory: docCategory,
+    loading: true,
   },
   actions: {
-    changeViewContent(context, payload) {
-      context.dispatch("changeViewContent", payload.viewContent);
+    changeLoadState(context, loadState) {
+      context.dispatch("loading", loadState);
     },
   },
   mutations: {
-    changeViewContent(state, viewContent) {
-      state.viewContent = viewContent;
+    changeLoadState(state, loadState) {
+      state.loading = loadState;
     },
   },
+  
 });
 
 export default store;

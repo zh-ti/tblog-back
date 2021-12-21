@@ -17,35 +17,35 @@
             <el-table-column
             prop="documents"
             sortable
-            width="100px"
+            width="100"
             label="文章数">
             </el-table-column>
 
             <el-table-column
             prop="browses"
             sortable
-            width="100px"
+            width="100"
             label="浏览数">
             </el-table-column>
 
             <el-table-column
             prop="likes"
             sortable
-            width="100px"
+            width="100"
             label="点赞数">
             </el-table-column>
 
             <el-table-column
             prop="comments"
             sortable
-            width="100px"
+            width="100"
             label="评论数">
             </el-table-column>
 
             <el-table-column
             prop="createTime"
             sortable
-            min-width="180px"
+            min-width="180"
             label="创建时间">
                 <template slot-scope="scope">
                     <i class="el-icon-time"></i>
@@ -55,7 +55,7 @@
 
             <el-table-column
             label="操作"
-            width="150px"
+            width="150"
             fixed="right"
             >
                 <template slot-scope="scope">
@@ -76,16 +76,20 @@
 </template>
 
 <script>
+    import docCategory from 'data/docCategory'
+
 export default {
     data(){
         return {
-           docCategory: this.$store.state.docCategory,
+           docCategory: docCategory,
            search: '',
         }
     },
-
+    beforeRouteLeave(to, from, next){
+      this.$store.commit('changeLoadState', true)
+      next()
+    },
     methods: {
-        
         addDocCategory() {
             this.$prompt('请输入新的分类名', '请输入', {
             confirmButtonText: '添加',
