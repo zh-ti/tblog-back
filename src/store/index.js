@@ -9,7 +9,7 @@ const store = new Vuex.Store({
   },
   actions: {
     changeLoadState(context, loadState) {
-      context.dispatch("loading", loadState);
+      context.commit("changeLoadState", loadState);
     },
   },
   mutations: {
@@ -17,7 +17,6 @@ const store = new Vuex.Store({
       state.loading = loadState;
     },
   },
-  
 });
 
 export default store;

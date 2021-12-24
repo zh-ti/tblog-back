@@ -1,34 +1,20 @@
 <template>
     <div id="doc-draft">
-        <el-card class="box-card clearfix" header="文章名称" shadow="hover" width="300">
+        <el-card v-for="item in documents" :key="item.id" class="box-card clearfix" :header="item.title" shadow="hover" width="300">
             <div class="content">
-              文章内容...，通过将alt属性设置为有意义的描述，用来访问 HTML 图像，这对于屏幕阅读器用户非常有帮助。
-然而，如果一个alt描述是不需要的，请不要删除它，如果你这样做，图像src将被读出,这对可访问性非常不利。
-不仅如此，如果图像因为某种原因没有加载，并且它有一个清晰的alt，它将作为一个回退显示。同样通过图例来演示一下。
+              {{item.content.length > 0 ? item.content : "无内容"}}
             </div>
             <div class="bottom clearfix">
-              <div class="publish-state" style="float: left">
-                <el-link type="success" href="https://zh-ti.top" target="_blank">已发布</el-link>
+              <div class="publish-state">
+                <el-link v-if="item.publishDatetime" type="warning" target="_blank" :underline="false">已撤回</el-link>
+                <el-link v-else type="danger" :underline="false">未发布</el-link>
               </div>
-              <div class="btn"  style="float: right">
-                <el-button size="mini" @click="edit()" type="primary" class="button">编辑</el-button>
-                <el-button size="mini" type="danger">删除</el-button>
+              <div class="center">
+                最近修改：{{item.lastEdit}}
               </div>
-            </div>
-        </el-card>
-        <el-card class="box-card clearfix" header="文章名称" shadow="hover" width="300">
-            <div class="content">
-              文章内容...，通过将alt属性设置为有意义的描述，用来访问 HTML 图像，这对于屏幕阅读器用户非常有帮助。
-然而，如果一个alt描述是不需要的，请不要删除它，如果你这样做，图像src将被读出,这对可访问性非常不利。
-不仅如此，如果图像因为某种原因没有加载，并且它有一个清晰的alt，它将作为一个回退显示。同样通过图例来演示一下。
-            </div>
-            <div class="bottom clearfix">
-              <div class="publish-state" style="float: left">
-                <el-link type="danger" disabled>未发布</el-link>
-              </div>
-              <div class="btn"  style="float: right">
-                <el-button size="mini" @click="edit()" type="primary" class="button">编辑</el-button>
-                <el-button size="mini" type="danger">删除</el-button>
+              <div class="btn">
+                <el-button size="mini" @click="edit(item.id)" type="primary" class="button">编辑</el-button>
+                <el-button size="mini" @click="deleteDoc(item.id, item.title)" type="danger">删除</el-button>
               </div>
             </div>
         </el-card>
@@ -36,17 +22,53 @@
 </template>
 
 <script>
+  import docDraftReq from 'network/document/docDraft'
+  import documentReq from 'network/document/document'
+
     export default {
-        methods: {
-          edit(){
-            this.$router.push('/docEdit/'+2)
-          },
-          loaded(){
-            this.$store.commit('changeLoadState', false)
+        data(){
+          return {
+            documents: [],
           }
         },
+        methods: {
+          edit(id){
+            this.$router.push('/docEdit/'+id)
+          },
+          refreshData(){
+            docDraftReq.getUnpublishedDocList().then(result=>{
+              this.documents = result
+              this.$store.dispatch("changeLoadState", false)
+            })
+          },
+          deleteDoc(id, title){
+            this.$confirm(`确定要删除文章 “${title}” 吗?`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(() => {
+              documentReq.deleteDocument(id).then(result=>{
+                if(result > 0){
+                  this.$message({
+                      type: 'success',
+                      message: '删除成功!'
+                  });
+                  this.refreshData();
+                }
+              })
+            }).catch(() => {
+            this.$message({
+                type: 'info',
+                message: '已取消删除文章'
+            });          
+            });
+          }
+        },
+        mounted(){
+          this.refreshData()
+        },
         beforeRouteLeave(to, from, next){
-          this.$store.commit('changeLoadState', true)
+          this.$store.dispatch('changeLoadState', true)
           next()
         },
     }
@@ -69,6 +91,9 @@
    .bottom {
     margin-top: 13px;
     line-height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .content {
@@ -90,7 +115,13 @@
   }
 
   .box-card {
-    width: 400px;
+    width: 430px;
     margin-bottom: 20px;
+  }
+
+  .center{
+    margin: 0 auto;
+    font-size: 14px;
+    color: #999;
   }
 </style>

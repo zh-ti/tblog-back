@@ -1,5 +1,5 @@
 <template>
-  <el-main >
+  <el-main v-loading="$store.state.loading">
     <router-view></router-view>
   </el-main>
 </template>
@@ -18,7 +18,7 @@ export default {
 </script>
 
 <style>
-  .el-main{
-    
+  ::-webkit-scrollbar {
+    height: 10px !important;
   }
 </style>

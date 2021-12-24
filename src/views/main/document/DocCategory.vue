@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-table
-            :data="docCategory"
+            :data="docCategoryList"
             height="75vh"
             style="width: 100%;"
         >
@@ -15,7 +15,7 @@
             </el-table-column>
 
             <el-table-column
-            prop="documents"
+            prop="docAmount"
             sortable
             width="100"
             label="文章数">
@@ -36,20 +36,13 @@
             </el-table-column>
 
             <el-table-column
-            prop="comments"
-            sortable
-            width="100"
-            label="评论数">
-            </el-table-column>
-
-            <el-table-column
-            prop="createTime"
+            prop="createDatetime"
             sortable
             min-width="180"
             label="创建时间">
                 <template slot-scope="scope">
                     <i class="el-icon-time"></i>
-                    <span style="margin-left: 10px">{{ scope.row.createTime }}</span>
+                    <span style="margin-left: 10px">{{ scope.row.createDatetime }}</span>
                 </template>
             </el-table-column>
 
@@ -76,32 +69,50 @@
 </template>
 
 <script>
-    import docCategory from 'data/docCategory'
+    import categoryReq from 'network/document/docCategory'
 
 export default {
     data(){
         return {
-           docCategory: docCategory,
+           docCategoryList: [],
            search: '',
         }
+    },
+    mounted(){
+        this.refreshData()
     },
     beforeRouteLeave(to, from, next){
       this.$store.commit('changeLoadState', true)
       next()
     },
     methods: {
+        refreshData(){
+            categoryReq.getDocCategoryList().then(result=>{
+                this.docCategoryList = result
+                this.$store.dispatch("changeLoadState", false)
+            })
+        },
         addDocCategory() {
             this.$prompt('请输入新的分类名', '请输入', {
             confirmButtonText: '添加',
             cancelButtonText: '取消',
-            inputPattern: /^[A-Za-z].{0,31}$/,
-            inputErrorMessage: '格式错误，只能以字母开头，且长度不超过32位。'
+            inputPattern: /^[A-Za-z].{0,15}$/,
+            inputErrorMessage: '格式错误，只能以字母开头，且长度不超过16位。'
             }).then(({ value }) => {
-                this.docCategory.push({name: value})
-                this.$message({
-                    type: 'success',
-                    message: `新分类 ${value} 添加成功`
-                });
+                categoryReq.addDocCategory(value).then(result=>{
+                    if(result > 0){
+                        this.refreshData()
+                        this.$message({
+                            type: 'success',
+                            message: `新分类 ${value} 添加成功`
+                        });
+                    }else if(result === -1){
+                        this.$message({
+                            type: "error",
+                            message: `分类 ${value} 已存在`
+                        })
+                    }
+                })
             }).catch(() => {
                 this.$message({
                     type: 'info',
@@ -116,16 +127,22 @@ export default {
             inputPattern: /^[A-Za-z].{0,31}$/,
             inputErrorMessage: '格式错误，只能以字母开头，且长度不超过32位。'
             }).then(({ value }) => {
-                for(let item of this.docCategory){
-                    if(item.name == payload.name){
-                        item.name = value;
-                        break
+                categoryReq.updateDocCategory(payload.id, value)
+                .then(result=>{
+                    if(result > 0){
+                        this.refreshData()
+                        this.$message({
+                            type: 'success',
+                            message: `分类 ${payload.name} 修改为 ${value}`
+                        });
+                    }else if(result === -1){
+                        this.$message({
+                            type: "error",
+                            message: `分类 ${value} 已存在`
+                        })
                     }
-                }
-                this.$message({
-                    type: 'success',
-                    message: `分类 ${payload.name} 修改为 ${value}`
-                });
+                })
+                
             }).catch(() => {
                 this.$message({
                     type: 'info',
@@ -139,15 +156,21 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
             }).then(() => {
-                this.docCategory.forEach((item, index, categorys)=>{
-                    if(item.name == payload.name){
-                        categorys.splice(index, 1)
+                categoryReq.deleteDocCategory(payload.id)
+                .then(result=>{
+                    if(result > 0){
+                        this.refreshData();
+                        this.$message({
+                            type: 'success',
+                            message: `分类 ${payload.name} 删除成功!`
+                        });
+                    }else if(result === -1){
+                        this.$message({
+                            type: "error",
+                            message: `请先删除分类 ${payload.name} 下的所有文章`
+                        })
                     }
                 })
-                this.$message({
-                    type: 'success',
-                    message: `分类 ${payload.name} 删除成功!`
-                });
             }).catch(() => {
                 this.$message({
                     type: 'info',

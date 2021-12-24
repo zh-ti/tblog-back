@@ -13,7 +13,7 @@
       :editable="interStyle.editable" 
       :navigation="interStyle.navigation"
       @change="changeDoc"
-      @save="actions.save && actions.save()"
+      @save="actions.save && actions.save(value)"
       @fullScreen="actions.fullScreen && actions.fullScreen()"
       @imgDel="actions.imgDel && actions.imgDel()"
     >
@@ -93,7 +93,7 @@ export default {
       autoSave(time){
         if(this.autoSaveTimer == null && this.actions.autoSave){
           this.autoSaveTimer = setInterval(()=>{
-            this.actions.save()
+            this.actions.save(this.value)
           }, this.actions.autoSave)
           setTimeout(()=>{
             clearInterval(this.autoSaveTimer)
