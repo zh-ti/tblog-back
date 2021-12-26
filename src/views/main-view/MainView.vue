@@ -1,6 +1,6 @@
 <template>
     <div class="main-view">
-        <el-container>
+        <el-container class="header">
             <Header></Header>
         </el-container>
         <el-container  class="main-container">
@@ -9,8 +9,6 @@
         </el-container>
     </div>
 </template>
-
-
 
 <script>
 import Header from 'views/header/Header'
@@ -33,5 +31,8 @@ export default {
     }
     .main-container{
         height: calc(100vh - 80px);
+    }
+    .el-container{
+        min-width: 700px
     }
 </style>

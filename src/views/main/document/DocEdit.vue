@@ -204,6 +204,7 @@ export default {
 <style>
     h2{
         margin-bottom: 15px;
+        font-weight: 500;
         font-size: 18px;
     }
     .md-editor{

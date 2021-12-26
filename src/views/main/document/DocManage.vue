@@ -2,6 +2,7 @@
   <div id="doc-manage">
         <el-button @click="clearFilter">清除所有过滤器</el-button>
         <el-button @click="addDoc">添加文章</el-button>
+        <el-button @click="refreshData">刷新</el-button>
 
         <el-table
             ref="documents"
@@ -91,6 +92,7 @@
             >
                 <template slot-scope="scope">
                   <span v-if="scope.row.state === 1">{{scope.row.publishDatetime}}</span>
+                  <span v-else-if="scope.row.state === 0 && scope.row.publishDatetime">已撤回</span>
                   <span v-else>未发布</span>
                 </template>
             </el-table-column>
@@ -174,10 +176,10 @@
         return row.publishDatetime.indexOf(value) != -1
       },
       addDoc(){
-        this.$router.push('/docEdit')
+        this.$router.push('/manage/docEdit')
       },
       editDoc(payload){
-        this.$router.push(`/docEdit/${payload.id}`)
+        this.$router.push(`/manage/docEdit/${payload.id}`)
       },
       withdrawDoc(payload){
           this.$confirm(`确定要撤回文章 “${payload.title}” 吗?`, '提示', {

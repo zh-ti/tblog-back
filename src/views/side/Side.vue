@@ -15,18 +15,18 @@
           <i class="el-icon-document"></i>
           <span v-show="showSideNav">博客管理</span>
           </template>
-          <el-menu-item index="2-1" @click="changeViewContent('docCategory')">文章分类</el-menu-item>
-          <el-menu-item index="2-2" @click="changeViewContent('docManage')">文章管理</el-menu-item>
-          <el-menu-item index="2-3" @click="changeViewContent('docEdit')">编辑文章</el-menu-item>
-          <el-menu-item index="2-4" @click="changeViewContent('docDraft')">草稿箱</el-menu-item>
+          <el-menu-item name="docCategory" index="2-1" @click="changeViewContent('docCategory')">文章分类</el-menu-item>
+          <el-menu-item name="docManage" index="2-2" @click="changeViewContent('docManage')">文章管理</el-menu-item>
+          <el-menu-item name="docEdit" index="2-3" @click="changeViewContent('docEdit')">编辑文章</el-menu-item>
+          <el-menu-item name="docDraft" index="2-4" @click="changeViewContent('docDraft')">草稿箱</el-menu-item>
       </el-submenu>
       <el-submenu index="3">
           <template slot="title">
           <i class="el-icon-user-solid"></i>
           <span v-show="showSideNav">账号管理</span>
           </template>
-          <el-menu-item index="3-1" @click="changeViewContent('adminManage')">账号管理</el-menu-item>
-          <el-menu-item index="3-2" @click="changeViewContent('curAdmin')">当前账号</el-menu-item>
+          <el-menu-item name="adminManage" index="3-1" @click="changeViewContent('adminManage')">账号管理</el-menu-item>
+          <el-menu-item name="curAdmin" index="3-2" @click="changeViewContent('curAdmin')">当前账号</el-menu-item>
       </el-submenu>
       </el-menu>
       <div class="menu-switch">
@@ -42,15 +42,21 @@ export default {
   data(){
     return {
       showSideNav: true,
+      origin: null,
     }
+  },
+  mounted(){
+    this.origin = document.querySelector(`.el-menu-item[name=${this.$route.path.split("/")[2]}`)
+    this.origin && this.origin.classList.add("is-active")
   },
   methods:{
     toggleSideStatus(){
       this.showSideNav = !this.showSideNav;
     },
     changeViewContent(content){
-      if(this.$route.path == '/'+content) return
-      this.$router.push("/"+content)
+      this.origin.classList.remove("is-active")
+      if(this.$route.path == '/manage/'+content) return
+      this.$router.push(`/manage/${content}`).catch(()=>{})
     }
   }
 }

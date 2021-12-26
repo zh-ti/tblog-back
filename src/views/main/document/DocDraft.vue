@@ -1,10 +1,10 @@
 <template>
     <div id="doc-draft">
-        <el-card v-for="item in documents" :key="item.id" class="box-card clearfix" :header="item.title" shadow="hover" width="300">
+        <el-card v-for="item in documents" :key="item.id" :header="item.title" shadow="hover" width="300">
             <div class="content">
               {{item.content.length > 0 ? item.content : "无内容"}}
             </div>
-            <div class="bottom clearfix">
+            <div class="bottom">
               <div class="publish-state">
                 <el-link v-if="item.publishDatetime" type="warning" target="_blank" :underline="false">已撤回</el-link>
                 <el-link v-else type="danger" :underline="false">未发布</el-link>
@@ -18,6 +18,7 @@
               </div>
             </div>
         </el-card>
+        <el-empty v-if="documents.length <= 0" description="这啥也没有"></el-empty>
     </div>
 </template>
 
@@ -33,7 +34,7 @@
         },
         methods: {
           edit(id){
-            this.$router.push('/docEdit/'+id)
+            this.$router.push('/manage/docEdit/'+id)
           },
           refreshData(){
             docDraftReq.getUnpublishedDocList().then(result=>{
@@ -51,7 +52,7 @@
                 if(result > 0){
                   this.$message({
                       type: 'success',
-                      message: '删除成功!'
+                      message: `文章 “${title}” 删除成功`
                   });
                   this.refreshData();
                 }
@@ -105,16 +106,7 @@
     -webkit-line-clamp: 5;
   }
 
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
-  }
-  .clearfix:after {
-    clear: both
-  }
-
-  .box-card {
+  .el-card {
     width: 430px;
     margin-bottom: 20px;
   }

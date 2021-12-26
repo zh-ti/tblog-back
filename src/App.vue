@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <main-view />
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import MainView from 'views/main-view/MainView'
+// import MainView from 'views/main-view/MainView'
 
 export default {
   name: 'App',
   components: {
-    MainView
+    // MainView
   }
 }
 </script>

@@ -28,6 +28,7 @@ module.exports = {
         common: "@/common",
         components: "@/components",
         views: "@/views",
+        lib: "@/lib",
         data: "@/data",
       },
     },

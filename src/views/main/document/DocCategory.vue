@@ -122,7 +122,7 @@ export default {
         },
         updateDocCategory(payload){
             this.$prompt(`请输入 ${payload.name} 修改后的分类名`, '请输入', {
-            confirmButtonText: '添加',
+            confirmButtonText: '修改',
             cancelButtonText: '取消',
             inputPattern: /^[A-Za-z].{0,31}$/,
             inputErrorMessage: '格式错误，只能以字母开头，且长度不超过32位。'
