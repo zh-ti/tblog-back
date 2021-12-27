@@ -3,10 +3,14 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter);
 
-import Cookie from "js-cookie";
+import Cookie from "lib/cookie/cookie";
 import managerReq from "network/manager";
 
 const routes = [
+  {
+    path: "/",
+    redirect: "/manage",
+  },
   {
     path: "/login",
     component: () => import("views/login/Login"),
@@ -47,7 +51,19 @@ const routes = [
         path: "docDraft",
         component: () => import("views/main/document/DocDraft"),
       },
+      {
+        path: "adminManage",
+        component: () => import("views/main/account/AdminManage"),
+      },
+      {
+        path: "currentManager",
+        component: () => import("views/main/account/CurrentManager"),
+      },
     ],
+  },
+  {
+    path: "*",
+    redirect: "/manage",
   },
 ];
 
@@ -59,11 +75,9 @@ const router = new VueRouter({
 router.beforeEach((to, form, next) => {
   const user = Cookie.get("account");
   if (to.path === "/login") return next();
-  const reg = /[.css]$|[.js]$|[.jpg]$|[.png]$|[.gif]$/;
-  if (reg.test(to.path)) return next();
   if (user) {
     managerReq
-      .checkLogin(JSON.parse(user).value)
+      .checkLogin(user)
       .then((result) => {
         if (result > 0) {
           next();

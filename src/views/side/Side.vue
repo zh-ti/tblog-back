@@ -26,7 +26,7 @@
           <span v-show="showSideNav">账号管理</span>
           </template>
           <el-menu-item name="adminManage" index="3-1" @click="changeViewContent('adminManage')">账号管理</el-menu-item>
-          <el-menu-item name="curAdmin" index="3-2" @click="changeViewContent('curAdmin')">当前账号</el-menu-item>
+          <el-menu-item name="currentManager" index="3-2" @click="changeViewContent('currentManager')">当前账号</el-menu-item>
       </el-submenu>
       </el-menu>
       <div class="menu-switch">

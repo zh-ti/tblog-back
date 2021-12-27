@@ -59,6 +59,7 @@
     import VerifyDialog from "components/common/Dialog"
 
     import managerReq from 'network/manager'
+    import Cookie from 'lib/cookie/cookie'
 
   export default {
     data(){
@@ -117,7 +118,7 @@
               type: "success",
               message: "登录成功"
             })
-            this.$cookies.set("account", result.cookie, new Date()+3600)
+            Cookie.set("account", result.cookie, new Date().getTime()+3600)
             this.$router.push("/manage")
           }else{
             this.$message({

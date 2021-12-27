@@ -1,15 +1,20 @@
 <template>
   <div id="docEdit">
       <h2>正在编辑文章：{{form.title}}</h2>
-      <md-editor ref="editor" class="md-editor" :content="form.content" :actions="editorActions">
-           <button
-            type="button"
-            @click="publish()"
-            class="op-icon fa el-icon-s-promotion"
-            aria-hidden="true"
-            slot="left-toolbar-after"
-            title="发布"
-            ></button>
+      <md-editor 
+      ref="editor" 
+      class="md-editor" 
+      :content="form.content" 
+      :actions="editorActions"
+      >
+        <button
+        type="button"
+        @click="publish()"
+        class="op-icon fa el-icon-s-promotion"
+        aria-hidden="true"
+        slot="left-toolbar-after"
+        title="发布"
+        ></button>
       </md-editor>
 
     <el-dialog title="文章信息" width="40%" :visible.sync="dialogFormVisible">
@@ -83,29 +88,7 @@ export default {
         }
     },
     mounted(){
-        new Promise(resolve=>{
-            if(this.$route.params.docId){
-                documentReq.getDocument(this.$route.params.docId)
-                .then(result=>{
-                    this.form.id = result.id
-                    this.form.categoryId = result.categoryId
-                    this.form.title = result.title
-                    this.form.isReprint = result.origin.length > 0
-                    this.form.content = result.content
-                    this.form.origin = result.origin
-                    this.$refs.editor.value = this.form.content
-                    resolve()
-                })
-            }
-            docCategoryReq.getDocCategoryList()
-            .then(result =>{
-                this.docCategoryList = result
-                resolve()
-            })
-        }).then(()=>{
-            this.$store.dispatch("changeLoadState", false)
-            this.showForm(true)
-        })
+        this.loadData();
     },
     beforeRouteLeave(to, from, next){
         this.$store.commit('changeLoadState', true)
@@ -168,6 +151,38 @@ export default {
                 }
             });
         },
+        loadData(){
+            Promise.all([
+                new Promise(resolve=>{
+                    if(this.$route.params.docId){
+                        documentReq.getDocument(this.$route.params.docId)
+                        .then(result=>{
+                            this.form.id = result.id
+                            this.form.categoryId = result.categoryId
+                            this.form.title = result.title
+                            this.form.isReprint = result.origin.length > 0
+                            this.form.content = result.content
+                            this.form.origin = result.origin
+                            this.$refs.editor.value = this.form.content
+                            resolve()
+                        })
+                    }else{
+                        resolve()
+                    }
+                }),
+                new Promise( resolve=>{
+                    // 获取文章分类
+                    docCategoryReq.getDocCategoryList()
+                    .then(result => {
+                        this.docCategoryList = result
+                        resolve()
+                    })
+                })
+            ]).then(()=>{
+                this.$store.dispatch("changeLoadState", false)
+                this.showForm(true)
+            })
+        },
         publish(){
             if(this.hasInfo()){
                 this.$confirm(`确定要发布文章 ${this.form.title} 吗?`, '提示', {
@@ -184,6 +199,7 @@ export default {
                             });
                         }
                     })
+                    this.$refs.form.resetFields()
                 }).catch(()=>{
                     this.$message({
                         type: 'info',
@@ -194,6 +210,25 @@ export default {
                 this.showForm(true)
             }
         },
+        init(){
+            this.form = {
+                id: "",
+                title: '',
+                categoryId: '',
+                isReprint: false,
+                origin: '',
+                content: '',
+            }
+            this.$refs.editor.init()
+            this.$refs.form.resetFields()
+            this.loadData()
+        }
+    },
+    watch: {
+        "$route" (){
+            this.init()
+            this.$forceUpdate
+        }
     },
     components: {
         MdEditor: MDEditor

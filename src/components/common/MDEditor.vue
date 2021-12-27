@@ -100,6 +100,9 @@ export default {
             this.autoSaveTimer = null
           }, time)
         }
+      },
+      init(){
+        this.value = "";
       }
     }
 }

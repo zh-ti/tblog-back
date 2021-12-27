@@ -92,6 +92,7 @@
    .bottom {
     margin-top: 13px;
     line-height: 12px;
+    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
