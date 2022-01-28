@@ -6,6 +6,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     loading: true,
+    uploadImageUrl: "http://localhost:8088/tblog/upload/uploadImage",
   },
   actions: {
     changeLoadState(context, loadState) {

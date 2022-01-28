@@ -182,7 +182,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
     .btn-row{
         display: flex;
         justify-content: center;

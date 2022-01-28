@@ -52,6 +52,21 @@ function withdrawDocument(id) {
   });
 }
 
+function uploadImage(formdata, type = 0, id = null) {
+  return common({
+    url: `/upload/uploadImage/${type}/${id}`,
+    method: "post",
+    data: formdata,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+}
+
+function deleteImage(url) {
+  return common({
+    url: `${url}/del`,
+  });
+}
+
 export default {
   getDocumentList,
   getDocument,
@@ -60,4 +75,6 @@ export default {
   updateDocument,
   publishDocument,
   withdrawDocument,
+  uploadImage,
+  deleteImage,
 };

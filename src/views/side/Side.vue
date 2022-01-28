@@ -1,7 +1,7 @@
 <template>
     <el-aside width="200px">
       <div class="box">
-      <el-menu :default-openeds="['1', '2']">
+      <el-menu :default-openeds="openeds">
       <el-submenu index="1">
           <template slot="title">
           <i class="el-icon-setting"></i>
@@ -42,6 +42,7 @@ export default {
   data(){
     return {
       showSideNav: true,
+      openeds: ["1", "2", "3"],
       origin: null,
     }
   },

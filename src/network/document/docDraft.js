@@ -1,10 +1,10 @@
 import { common } from "../request";
 
-const getUnpublishedDocList = function () {
+function getUnpublishedDocList() {
   return common({
     url: "/document/getUnpublishedDocList",
   });
-};
+}
 
 export default {
   getUnpublishedDocList,

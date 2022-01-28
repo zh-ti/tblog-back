@@ -73,7 +73,7 @@
       </el-table-column>
     </el-table>
     <el-row class="btn">
-      <el-button v-if="current.position <= 1" type="primary" @click="showForm(true)">添加管理员</el-button>
+      <el-button v-if="current.position <= 1" type="primary" @click="showForm(true, 'add')">添加管理员</el-button>
     </el-row>
 
     <el-dialog title="管理员信息" :visible.sync="dialogFormVisible">
@@ -93,8 +93,9 @@
       </el-form-item>
 
       <el-form-item 
-      label="管理权限" 
-      :label-width="formLabelWidth" 
+       v-if="this.form.position != 0 && current.position == 0 || this.operate == 'add'"
+      label="管理权限"
+      :label-width="formLabelWidth"
       prop="forePosition">
         <el-select v-model="form.forePosition" placeholder="请选择权限">
           <el-option label="普通" value="普通"></el-option>
@@ -121,6 +122,7 @@ export default {
       managers: [],
       dialogFormVisible: false,
       form: {
+        id: '',
         account: '',
         password: '',
         position: '',
@@ -139,7 +141,8 @@ export default {
           {required: true, message: "请选择管理员权限", trggler: 'change'},
         ]
       },
-      formLabelWidth: "100px"
+      formLabelWidth: "100px",
+      operate: "add",
     }
   },
   computed: {
@@ -170,13 +173,16 @@ export default {
       if(this.current.position < row.position || this.current.id == row.id) return row.password
       return [...row.password].map(()=>"*").join("")
     },
-    showForm(judge){
+    showForm(judge, operate){
       this.dialogFormVisible = judge
+      this.operate = operate
       if(!judge) this.initForm()
     },
     initForm(){
-      this.$refs.addForm.resetFields();
+      this.$refs.addForm.resetFields()
+      this.operate = 'add'
       this.form = {
+        id: '',
         account: '',
         password: '',
         position: '',
@@ -232,7 +238,7 @@ export default {
       }).catch(()=>{})
     },
     updateManager(id){
-      this.showForm(true);
+      this.showForm(true, 'update');
       managerReq.getManager(id).then(result=>{
         if(result){
           this.form = result
@@ -259,7 +265,7 @@ export default {
       }).catch(()=>{})
     },
     submit(){
-      if(this.form.id) this.update()
+      if(this.form.id.length) this.update()
       else this.add()
     },
     update(){

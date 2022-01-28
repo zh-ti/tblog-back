@@ -1,8 +1,8 @@
 <template>
   <div id="md-editor">
     <mavon-editor  
+      ref=md
       v-model="value"
-      :external-link="externalLink" 
       :ishljs="interStyle.ishljs"  
       :codeStyle="interStyle.codeStyle" 
       :boxShadowStyle="interStyle.boxShadowStyle" 
@@ -12,10 +12,13 @@
       :toolbarsFlag="interStyle.toolbarsFlag"
       :editable="interStyle.editable" 
       :navigation="interStyle.navigation"
+      :tabSize="2"
+      :scrollStyle="true"
       @change="changeDoc"
       @save="actions.save && actions.save(value)"
       @fullScreen="actions.fullScreen && actions.fullScreen()"
-      @imgDel="actions.imgDel && actions.imgDel()"
+      @imgAdd="imgAdd"
+      @imgDel="imgDel"
     >
     <template slot="left-toolbar-before">
       <slot name="left-toolbar-before"></slot>
@@ -75,14 +78,6 @@ export default {
           editable: true,
           navigation: false,
         },
-        externalLink: {
-          hljs_js: () => '/md/highlightjs/highlight.min.js',
-          hljs_css: (css) => '/md/highlightjs/styles/' + css + '.min.css',
-          hljs_lang: (lang) => '/md/highlightjs/languages/' + lang + '.min.js',
-          katex_css: () => '/md/katex/katex.min.css',
-          katex_js: () => '/md/katex/katex.min.js',
-          markdown_css: ()=> '/md/markdown/github-markdown.min.css'
-        }
       }
     },
     methods: {
@@ -103,9 +98,23 @@ export default {
       },
       init(){
         this.value = "";
+      },
+      imgAdd(pos, img){
+        this.$emit('imgAdd', {pos, img, md: this.$refs.md})
+      },
+      imgDel(arr){
+        this.$emit('imgDel', {url: arr[0], img: arr[1]})
       }
     }
 }
 </script>
-<style scoped>
+<style>
+  .hljs{
+    padding: 5px 10px !important;
+    background-color: #eee !important;
+  }
+  
+  .v-note-panel{
+    max-height: 600px;
+  }
 </style>

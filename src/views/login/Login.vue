@@ -47,13 +47,12 @@
 </template>
 
 <script>
-// :imgs="verifyImgs"
 
-    import img1 from 'assets/img/slide-verify/img1.jpg'
-    import img2 from 'assets/img/slide-verify/img2.jpg'
-    import img3 from 'assets/img/slide-verify/img3.jpg'
-    import img4 from 'assets/img/slide-verify/img4.jpg'
-    import img5 from 'assets/img/slide-verify/img5.jpg'
+    import img1 from 'assets/img/slide-verify/verify1.jpg'
+    import img2 from 'assets/img/slide-verify/verify2.jpg'
+    import img3 from 'assets/img/slide-verify/verify3.jpg'
+    import img4 from 'assets/img/slide-verify/verify4.jpg'
+    import img5 from 'assets/img/slide-verify/verify5.jpg'
     import SlideVerify from "components/common/SlideVerify"
 
     import VerifyDialog from "components/common/Dialog"
@@ -113,6 +112,7 @@
         this.showDialog = false
         managerReq.login(this.form)
         .then(result=>{
+          console.log(result);
           if(result !== null){
             this.$message({
               type: "success",
@@ -146,7 +146,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url("~assets/img/slide-verify/img1.jpg");
+    background-image: url("~assets/img/login/login-bg.jpg");
     background-size: cover;
   }
   #login .login-form{
