@@ -3,39 +3,39 @@ import { common } from "../request";
 function getDocCategoryList() {
   return common({
     method: "get",
-    url: "/docCategory/getCategoryList",
+    url: "/articleCategory/getCategoryList",
   });
 }
 
 function updateDocCategory(id, newName) {
   return common({
     method: "post",
-    url: `/docCategory/updateCategory/${id}/${newName}`,
+    url: `/articleCategory/updateCategory/${id}/${newName}`,
   });
 }
 
 function addDocCategory(name) {
   return common({
     method: "post",
-    url: `/docCategory/addCategory/${name}`,
+    url: `/articleCategory/addCategory/${name}`,
   });
 }
 
 function deleteDocCategory(id) {
   return common({
     method: "post",
-    url: `/docCategory/deleteCategory/${id}`,
+    url: `/articleCategory/deleteCategory/${id}`,
   });
 }
 
 function queryDocCategory(id) {
   return common({
     method: "post",
-    url: `/docCategory/queryCategory/${id}`,
+    url: `/articleCategory/queryCategory/${id}`,
   });
 }
 
-export default {
+export {
   getDocCategoryList,
   updateDocCategory,
   addDocCategory,

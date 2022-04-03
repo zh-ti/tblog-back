@@ -145,10 +145,10 @@
       refreshData(){
         documentReq.getDocumentList()
         .then(result=>{
-          this.tableData = result
+          this.tableData = result.data[0]
           const map = new Map()
           const set = new Set()
-          for(let item of result) {
+          for(let item of this.tableData) {
             map.set(item.category, item.categoryId)
             if(!item.publishDatetime) set.add("未发布")
             else set.add(item.publishDatetime.trim().substr(0, 10))
@@ -189,7 +189,7 @@
             }).then(() => {
               documentReq.withdrawDocument(payload.id)
               .then(result=>{
-                if(result > 0){
+                if(result.data > 0){
                   this.$message({
                     type: 'success',
                     message: '撤回成功!'
@@ -211,7 +211,7 @@
             type: 'warning'
             }).then(() => {
               documentReq.deleteDocument(payload.id).then(result=>{
-                if(result > 0){
+                if(result.data > 0){
                   this.$message({
                       type: 'success',
                       message: '删除成功!'

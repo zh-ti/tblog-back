@@ -2,7 +2,7 @@
     <div id="doc-draft">
         <el-card v-for="item in documents" :key="item.id" :header="item.title" shadow="hover" width="300">
             <div class="content">
-              {{item.content.length > 0 ? item.content : "无内容"}}
+              {{item.brief.length > 0 ? item.brief : "无简介"}}
             </div>
             <div class="bottom">
               <div class="publish-state">
@@ -38,7 +38,7 @@
           },
           refreshData(){
             docDraftReq.getUnpublishedDocList().then(result=>{
-              this.documents = result
+              this.documents = result.data[0]
               this.$store.dispatch("changeLoadState", false)
             })
           },
@@ -48,13 +48,18 @@
             cancelButtonText: '取消',
             type: 'warning'
             }).then(() => {
-              documentReq.deleteDocument(id).then(result=>{
-                if(result > 0){
+              documentReq.deleteDocument(id).then(({resultStatus})=>{
+                if(!resultStatus.hasError){
                   this.$message({
                       type: 'success',
                       message: `文章 “${title}” 删除成功`
                   });
                   this.refreshData();
+                }else{
+                  this.$message({
+                    type: "error",
+                    message: resultStatus.reason
+                  })
                 }
               })
             }).catch(() => {

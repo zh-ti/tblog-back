@@ -69,8 +69,12 @@
 </template>
 
 <script>
-    import categoryReq from 'network/document/docCategory'
-
+    import {
+      getDocCategoryList,
+      addDocCategory,
+      updateDocCategory,
+      deleteDocCategory
+    } from 'network/document/docCategory.js'
 export default {
     data(){
         return {
@@ -87,8 +91,9 @@ export default {
     },
     methods: {
         refreshData(){
-            categoryReq.getDocCategoryList().then(result=>{
-                this.docCategoryList = result
+            getDocCategoryList().then(
+              result=>{
+                this.docCategoryList = result.data[0]
                 this.$store.dispatch("changeLoadState", false)
             })
         },
@@ -99,17 +104,17 @@ export default {
             inputPattern: /^[A-Za-z].{0,15}$/,
             inputErrorMessage: '格式错误，只能以字母开头，且长度不超过16位。'
             }).then(({ value }) => {
-                categoryReq.addDocCategory(value).then(result=>{
-                    if(result > 0){
-                        this.refreshData()
-                        this.$message({
-                            type: 'success',
-                            message: `新分类 ${value} 添加成功`
-                        });
-                    }else if(result === -1){
+                addDocCategory(value).then(result=>{
+                  if(!result.resultStatus.hasError){
+                    this.refreshData()
+                    this.$message({
+                        type: 'success',
+                        message: `新分类 ${value} 添加成功`
+                    });
+                  }else{
                         this.$message({
                             type: "error",
-                            message: `分类 ${value} 已存在`
+                            message: result.resultStatus.reason
                         })
                     }
                 })
@@ -127,18 +132,18 @@ export default {
             inputPattern: /^[A-Za-z].{0,31}$/,
             inputErrorMessage: '格式错误，只能以字母开头，且长度不超过32位。'
             }).then(({ value }) => {
-                categoryReq.updateDocCategory(payload.id, value)
+                updateDocCategory(payload.id, value)
                 .then(result=>{
-                    if(result > 0){
+                    if(!result.resultStatus.hasError){
                         this.refreshData()
                         this.$message({
                             type: 'success',
                             message: `分类 ${payload.name} 修改为 ${value}`
                         });
-                    }else if(result === -1){
+                    }else{
                         this.$message({
                             type: "error",
-                            message: `分类 ${value} 已存在`
+                            message: result.resultStatus.reason
                         })
                     }
                 })
@@ -156,18 +161,18 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
             }).then(() => {
-                categoryReq.deleteDocCategory(payload.id)
+                deleteDocCategory(payload.id)
                 .then(result=>{
-                    if(result > 0){
+                    if(!result.resultStatus.hasError){
                         this.refreshData();
                         this.$message({
                             type: 'success',
                             message: `分类 ${payload.name} 删除成功!`
                         });
-                    }else if(result === -1){
+                    }else{
                         this.$message({
                             type: "error",
-                            message: `请先删除分类 ${payload.name} 下的所有文章`
+                            message: result.resultStatus.reason
                         })
                     }
                 })

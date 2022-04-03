@@ -3,67 +3,51 @@ import { common } from "../request";
 function getDocumentList() {
   return common({
     method: "get",
-    url: "/document/getDocumentList",
+    url: "/article/getArticleList",
   });
 }
 
 function addDocument(form) {
   return common({
     method: "post",
-    url: "/document/addDocument",
-    data: JSON.stringify(form),
+    url: "/article/addArticle",
+    data: form,
   });
 }
 
 function getDocument(id) {
   return common({
     method: "get",
-    url: `/document/getDocument/${id}`,
+    url: `/article/getArticle/${id}`,
   });
 }
 
 function deleteDocument(id) {
   return common({
     methods: "get",
-    url: `/document/deleteDocument/${id}`,
+    url: `/article/deleteArticle/${id}`,
   });
 }
 
 function updateDocument(form) {
   return common({
     method: "post",
-    url: "/document/updateDocument",
-    data: JSON.stringify(form),
+    url: "/article/updateArticle",
+    data: form,
   });
 }
 
-function publishDocument(form) {
+function publishDocument(id) {
   return common({
     method: "post",
-    url: "/document/publishDocument",
-    data: JSON.stringify(form),
+    url: `/article/publishArticle/${id}`,
   });
 }
 
 function withdrawDocument(id) {
   return common({
     method: "get",
-    url: `/document/withdrawDocument/${id}`,
-  });
-}
-
-function uploadImage(formdata, type = 0, id = null) {
-  return common({
-    url: `/upload/uploadImage/${type}/${id}`,
-    method: "post",
-    data: formdata,
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-}
-
-function deleteImage(url) {
-  return common({
-    url: `${url}/del`,
+    url: `/article/withdrawArticle/${id}`,
   });
 }
 
@@ -75,6 +59,4 @@ export default {
   updateDocument,
   publishDocument,
   withdrawDocument,
-  uploadImage,
-  deleteImage,
 };

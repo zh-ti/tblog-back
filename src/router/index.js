@@ -3,9 +3,6 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter);
 
-import Cookie from "lib/cookie/cookie";
-import managerReq from "network/manager";
-
 const routes = [
   {
     path: "/",
@@ -55,15 +52,7 @@ const routes = [
         path: "adminManage",
         component: () => import("views/main/account/AdminManage"),
       },
-      {
-        path: "currentManager",
-        component: () => import("views/main/account/CurrentManager"),
-      },
     ],
-  },
-  {
-    path: "*",
-    redirect: "/manage",
   },
 ];
 
@@ -72,23 +61,30 @@ const router = new VueRouter({
   mode: "history",
 });
 
+import Cookie from "lib/cookie/cookie";
+import managerReq from "network/manager";
+
 router.beforeEach((to, form, next) => {
-  const user = Cookie.get("account");
+  const managerToken = Cookie.get("manager");
   if (to.path === "/login") return next();
-  if (user) {
+  if (managerToken) {
     managerReq
-      .checkLogin(user)
+      .checkLogin(managerToken)
       .then((result) => {
-        if (result > 0) {
+        if (!result.resultStatus.hasError) {
           next();
         } else {
-          next("/login");
+          next({
+            path: "/login",
+            query: { message: result.resultStatus.reason },
+          });
         }
       })
-      .catch(() => {});
+      .catch((err) => console.log(err));
   } else {
-    next("/login");
+    next({ path: "/login", query: "请重新登录" });
   }
+  next();
 });
 
 export default router;

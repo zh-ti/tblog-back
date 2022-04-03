@@ -7,7 +7,7 @@
       height="70vh"
       >
       <el-table-column
-        prop="account"
+        prop="name"
         label="账户名"
         sortable
         fixed="left"
@@ -31,19 +31,10 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="registDatetime"
+        prop="registrationDatetime"
         sortable
         min-width="180"
         label="注册时间">
-      </el-table-column>
-      <el-table-column
-      prop="password"
-      label="密码"
-      width="180"
-      >
-        <template slot-scope="scope">
-          {{handlePassword(scope)}}
-        </template>
       </el-table-column>
       <el-table-column
       label="操作"
@@ -54,17 +45,17 @@
           <el-button
           size="mini"
           @click="updateManager(scope.row.id)"
-          :disabled="scope.row.position <= current.position && scope.row.id != current.id"
+          :disabled="scope.row.position <= currentManager.position && scope.row.id != currentManager.id"
           >修改</el-button>
           <el-button
           size="mini"
           type="danger"
-          v-if="scope.row.id !== current.id"
-          @click="deleteManager(scope.row.id, scope.row.account)"
-          :disabled="scope.row.position <= current.position"
+          v-if="scope.row.id !== currentManager.id"
+          @click="deleteManager(scope.row.id, scope.row.name)"
+          :disabled="scope.row.position <= currentManager.position"
           >删除</el-button>
           <el-button
-          v-if="scope.row.id === current.id"
+          v-if="scope.row.id === currentManager.id"
           size="mini"
           type="danger"
           @click="distroySelf(scope.row.id)"
@@ -73,7 +64,7 @@
       </el-table-column>
     </el-table>
     <el-row class="btn">
-      <el-button v-if="current.position <= 1" type="primary" @click="showForm(true, 'add')">添加管理员</el-button>
+      <el-button v-if="currentManager.position <= 1" type="primary" @click="showForm(true, 'add')">添加管理员</el-button>
     </el-row>
 
     <el-dialog title="管理员信息" :visible.sync="dialogFormVisible">
@@ -81,25 +72,24 @@
       <el-form-item 
       label="账户名" 
       :label-width="formLabelWidth" 
-      prop="account">
-        <el-input v-model="form.account" autocomplete="off"></el-input>
+      prop="name">
+        <el-input v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
-
        <el-form-item 
-       label="密码" 
-       :label-width="formLabelWidth" 
-       prop="password">
+      label="密码" 
+      :label-width="formLabelWidth" 
+      prop="password">
         <el-input v-model="form.password" autocomplete="off"></el-input>
       </el-form-item>
 
       <el-form-item 
-       v-if="this.form.position != 0 && current.position == 0 || this.operate == 'add'"
+       v-if="this.form.position != 0 && currentManager.position == 0 || this.operate == 'add'"
       label="管理权限"
       :label-width="formLabelWidth"
       prop="forePosition">
         <el-select v-model="form.forePosition" placeholder="请选择权限">
           <el-option label="普通" value="普通"></el-option>
-          <el-option label="高级" value="高级" v-if="current.position == 0"></el-option>
+          <el-option label="高级" value="高级" v-if="currentManager.position == 0"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
@@ -118,37 +108,33 @@ import Cookie from 'lib/cookie/cookie'
 
 export default {
   data(){
-    return {
-      managers: [],
-      dialogFormVisible: false,
-      form: {
-        id: '',
-        account: '',
-        password: '',
-        position: '',
-        forePosition: '',
-      },
-      formRules: {
-        account: [
-          {required: true, message: "请输入账户名", trigger: 'change'},
-          {min: 1, max: 16, message: "长度在 3 到 16 个字符", trigger: "change"}
-        ],
-        password: [
-          {required: true, message: "请输入密码", trigger: "blur"},
-          {min: 6, max: 255, message: "长度在 6 到 255 个字符", trigger: 'blur'}
-        ],
-        forePosition: [
-          {required: true, message: "请选择管理员权限", trggler: 'change'},
-        ]
-      },
-      formLabelWidth: "100px",
-      operate: "add",
-    }
-  },
-  computed: {
-    current(){
-      return JSON.parse(Cookie.get("account"))
-    }
+      return {
+        managers: [],
+        dialogFormVisible: false,
+        form: {
+          id: '',
+          name: '',
+          password: '',
+          position: '',
+          forePosition: '',
+        },
+        formRules: {
+          name: [
+            {required: true, message: "请输入账户名", trigger: 'change'},
+            {min: 1, max: 16, message: "长度在 3 到 16 个字符", trigger: "change"}
+          ],
+          password: [
+            {required: true, message: "请输入密码", trigger: "blur"},
+            {min: 6, max: 255, message: "长度在 6 到 255 个字符", trigger: 'blur'}
+          ],
+          forePosition: [
+            {required: true, message: "请选择管理员权限", trggler: 'change'},
+          ]
+        },
+        formLabelWidth: "100px",
+        operate: "add",
+        currentManager: ''
+      }
   },
   beforeRouteLeave(to, from, next){
     this.$store.dispatch("changeLoadState", true)
@@ -161,16 +147,21 @@ export default {
     refreshData(){
       managerReq.getManagerList()
       .then(result=>{
-        this.managers = result
+        this.managers = result.data[0]
         this.$store.dispatch("changeLoadState", false)
       })
+      let sessionId = Cookie.get("manager");
+      managerReq.getManagerInfo(sessionId).then(result=>{
+        this.currentManager = result.data;
+      })
+      return sessionId
     },
     isCurrent(payload){
-      let currentId = this.current.id
-      return (currentId == payload.row.id) ? "current" : ''
+      let currentManagerId = this.currentManager.id
+      return (currentManagerId == payload.row.id) ? "currentManager" : ''
     },
     handlePassword({row}){
-      if(this.current.position < row.position || this.current.id == row.id) return row.password
+      if(this.currentManager.position < row.position || this.currentManager.id == row.id) return row.password
       return [...row.password].map(()=>"*").join("")
     },
     showForm(judge, operate){
@@ -183,7 +174,7 @@ export default {
       this.operate = 'add'
       this.form = {
         id: '',
-        account: '',
+        name: '',
         password: '',
         position: '',
         forePosition: '',
@@ -198,68 +189,58 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        if(this.current.position == 0) {
+        if(this.currentManager.position == 0) {
           this.$message({type:"error",message:"当前账号无法注销"})
           return
         }
-        this.$prompt('请输入密码以确认身份', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          inputPattern: /^[\w]{6,255}$/,
-          inputErrorMessage: '密码格式输入错误'
-        }).then(({ value }) => {
-            managerReq.verifyPassword(id, value)
-            .then(result=>{
-              if(result){
-                managerReq.deleteManager(id).then(result=>{
-                  if(result > 0){
-                      this.$message({
-                        type: "success",
-                        message: "注销成功"
-                      })
-                      Cookie.remove('account')
-                      this.$router.push("/manage/login").catch(()=>{})
-                    }
-                  })
-              }else{
-                this.$message({
-                  type: "error",
-                  message: "密码输入错误"
-                })
-              }
-            })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '取消输入'
-          });       
-        });
-        
+        managerReq.deleteManager(id).then(({resultStatus})=>{
+          if(!resultStatus.hasError){
+              this.$message({
+                type: "success",
+                message: "注销成功"
+              })
+              Cookie.remove('name')
+              this.$router.push("/login").catch(()=>{})
+            }
+        })
       }).catch(()=>{})
     },
     updateManager(id){
       this.showForm(true, 'update');
       managerReq.getManager(id).then(result=>{
-        if(result){
-          this.form = result
-          if(result.position == 1) this.form.forePosition = "高级"
-          else if(result.position == 2) this.form.forePosition = "普通"
+        let formData = result.data[0]
+        if(!result.resultStatus.hasError){
+          this.form.id = formData.id
+          this.form.name = formData.name
+          this.form.position = formData.position
+          if(formData.position == 1) this.form.forePosition = "高级"
+          else if(formData.position == 2) this.form.forePosition = "普通"
+        }else{
+          this.$message({
+            type: "error",
+            message: result.resultStatus.reason
+          })
         }
       })
     },
-    deleteManager(id, account){
-      this.$confirm(`确定要删除管理员 ${account} 吗？`, '提示', {
+    deleteManager(id, name){
+      this.$confirm(`确定要删除管理员 ${name} 吗？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        managerReq.deleteManager(id).then(result=>{
-          if(result > 0){
+        managerReq.deleteManager(id).then(({resultStatus})=>{
+          if(!resultStatus.hasErrpr){
             this.$message({
               type: "success",
               message: "删除成功"
             })
             this.refreshData()
+          }else{
+            this.$message({
+              type: "error",
+              message: resultStatus.reaosn
+            })
           }
         })
       }).catch(()=>{})
@@ -269,34 +250,30 @@ export default {
       else this.add()
     },
     update(){
-      managerReq.updateManager(this.form).then(result=>{
-        if(result > 0){
-          if(this.form.id == this.current.id){
+      managerReq.updateManager(this.form).then(({resultStatus})=>{
+        if(!resultStatus.hasError){
+          if(this.form.id == this.currentManager.id){
             this.$message({
               type: "success",
               message:"修改成功，请重写登录"
             })
-            Cookie.remove('account')
-            setTimeout(()=> this.$router.push("/login").catch(()=>{}), 3000)
+            Cookie.remove('manager')
+            setTimeout(()=> 
+              this.$router.push({ path: "/login", query: "请重新登录" })
+            .catch(()=>{}), 3000)
           }else{
             this.$message({
               type: "success",
               message:"修改成功"
             })
+            this.refreshData()
           }
           this.showForm(false)
-          this.refreshData()
-        }else if(result == -1){
-          this.$message({
-            type: "error",
-            message: `账户名 ${this.form.account} 已存在，换一个吧`
-          })
         }else{
           this.$message({
             type: "error",
-            message: `发生了未知错误请重试`
+            message: resultStatus.reason
           })
-          this.showForm(false)
         }
       })
     },
@@ -306,7 +283,7 @@ export default {
           if(this.form.forePosition == "普通") this.form.position = 2
           else if(this.form.forePosition == "高级") this.form.position = 1
           managerReq.registerManager(this.form).then(result=>{
-            if(result > 0){
+            if(!result.resultStatus.hasError){
               this.$message({
                 type: "success",
                 message: "添加成功"
@@ -314,10 +291,10 @@ export default {
               this.$refs.addForm.resetFields()
               this.refreshData()
               this.showForm(false)
-            }else if(result == -1){
+            }else {
               this.$message({
                 type: "error",
-                message: `账户名 ${this.form.account} 已存在，换一个吧`
+                message: result.resultStatus.reason
               })
             }
           })
@@ -331,8 +308,8 @@ export default {
 }
 </script>
 
-<style>
-  .el-table .current{
+<style scoped>
+  .el-table .currentManager{
     background-color: #cae3fc;
     color: #333;
   }

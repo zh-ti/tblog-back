@@ -6,8 +6,8 @@
         <input 
         type="text" 
         placeholder="账户" 
-        name="account" 
-        v-model.trim="form.account" 
+        name="name" 
+        v-model.trim="form.name" 
         focus="true"
         autocomplete="off">
       </div>
@@ -65,8 +65,8 @@
       return {
         showDialog: false,
         form: {
-          account: '',
-          password: ''
+          name: 'zhti',
+          password: '123456'
         },
         verifyImgs: [
           img1,
@@ -77,12 +77,21 @@
         ],
       }
     },
+    mounted(){
+      if(this.$route.query.message){
+        this.$message({
+          type: "error",
+          message: this.$route.query.message
+        })
+      }
+    },
     methods: {
       onSuccess(time){
-        this.$message({
-          type: "success",
-          message: `验证成功，用时 ${time/1000} 秒`
-        })
+        time
+        // this.$message({
+        //   type: "success",
+        //   message: `验证成功，用时 ${time/1000} 秒`
+        // })
         this.login()
       },
       onFail(){
@@ -92,7 +101,7 @@
         })
       },
       check(){
-        if(this.form.account.length <= 0){
+        if(this.form.name.length <= 0){
           this.$message({
             type: "error",
             message: "账户不能为空"
@@ -113,17 +122,17 @@
         managerReq.login(this.form)
         .then(result=>{
           console.log(result);
-          if(result !== null){
+          if(!result.resultStatus.hasError){
             this.$message({
               type: "success",
               message: "登录成功"
             })
-            Cookie.set("account", result.cookie, new Date().getTime()+3600)
-            this.$router.push("/manage")
+            Cookie.set("manager", result.data, new Date().getTime()+3600)
+            this.$router.push("/manage").catch(e=>console.log(e))
           }else{
             this.$message({
               type: "error",
-              message: "账号或密码错误，请重试"
+              message: result.resultStatus.reason
             })
             this.$refs.verify.refresh();
           }

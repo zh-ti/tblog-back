@@ -9,7 +9,7 @@ function set(name, value, activeTime) {
 function get(name) {
   const json = Cookie.get(name);
   if (!json) return null;
-  return JSON.parse(json).value;
+  return JSON.parse(json);
 }
 
 function remove(name) {

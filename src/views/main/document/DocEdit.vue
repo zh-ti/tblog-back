@@ -39,7 +39,9 @@
             </el-form-item>
           </el-row>
           <el-row>
-            <el-form-item label="文章封面">
+            <el-form-item label="文章封面"
+                v-if="false"
+            >
               <el-upload
                 class="avatar-uploader"
                 :action="`${$store.state.uploadImageUrl}/1/${this.form.id}`"
@@ -83,7 +85,7 @@
 <script>
 import MDEditor from 'components/common/MDEditor'
 
-import docCategoryReq from "network/document/docCategory"
+import {getDocCategoryList} from "network/document/docCategory"
 import documentReq from 'network/document/document'
 
 export default {
@@ -149,9 +151,6 @@ export default {
            formdata.append('image', img);
            documentReq.uploadImage(formdata, 0, this.form.id).then(( result) => {
              md.$img2Url(pos, result);
-           }, error =>{
-             console.log(error);
-             console.log(this.$refs.editor.$img2Url);
            })
         },
         uploadCover({file}){
@@ -209,19 +208,18 @@ export default {
                   })
               }else{
                   documentReq.addDocument(this.form)
-                  .then(result=>{
-                      result = JSON.parse(result)
-                      if(result.result > 0){
+                  .then(({resultStatus,data}) => {
+                      if(resultStatus.hasError){
+                          this.$message({
+                              type: "error",
+                              message: resultStatus.message
+                          })
+                      }else {
                           this.$message({
                               type: "success",
                               message: `文章 ${this.form.title} 添加成功`
                           })
-                          this.form.id = result.id
-                      }else if(result.result === -1){
-                          this.$message({
-                              type: "error",
-                              message: `文章标题 ${this.form.title} 已存在，请修改标题`
-                          })
+                          this.form.id = data
                       }
                   })
               }
@@ -234,7 +232,8 @@ export default {
                 new Promise(resolve=>{
                     if(this.$route.params.docId){
                         documentReq.getDocument(this.$route.params.docId)
-                        .then(result=>{
+                        .then(({data})=>{
+                            let result = data[0];
                             this.form.id = result.id
                             this.form.categoryId = result.categoryId
                             this.form.title = result.title
@@ -254,21 +253,21 @@ export default {
                 }),
                 new Promise( resolve=>{
                     // 获取文章分类
-                    docCategoryReq.getDocCategoryList()
+                    getDocCategoryList()
                     .then(result => {
-                        this.docCategoryList = result
+                        this.docCategoryList = result.data[0]
                         resolve()
                     })
                 })
             ]).then(()=>{
-              this.$store.dispatch("changeLoadState", false)
-              
+              // this.$store.dispatch("changeLoadState", false)
               this.$nextTick(() => {
                 this.showForm = true
                 this.$store.commit('changeLoadState', false)
               })
             }).catch(()=>{
-              this.init(false)
+              this.init(false);
+              this.$store.commit('changeLoadState', false)
             })
         },
         publish(){
@@ -279,14 +278,20 @@ export default {
                   cancelButtonText: '取消',
                   type: 'warning'
               }).then(() => {
-                  documentReq.publishDocument(this.form)
+                  this.save();
+                  documentReq.publishDocument(this.form.id)
                   .then(result=>{
-                      if(result > 0){
+                      if(!result.resultStatus.hasError){
                         this.$message({
                             type: 'success',
                             message: `文章 ${this.form.title} 发布成功`
                         });
                         this.loadData()
+                      }else{
+                        this.$message({
+                          type: "warning",
+                          message: result.resultStatus.reason
+                        })
                       }
                   })
               }).catch(()=>{
@@ -306,13 +311,17 @@ export default {
             }).then(() => {
               documentReq.withdrawDocument(this.form.id)
               .then(result=>{
-                if(result > 0){
+                if(!result.resultStatus.hasError){
                   this.$message({
                     type: 'success',
                     message: '撤回成功!'
                   });
                   this.loadData()
-                  this.reloadButton()
+                }else{
+                  this.$message({
+                    type: 'error',
+                    message: result.resultStatus.reason
+                  });
                 }
               })
             }).catch(() => {
@@ -332,9 +341,11 @@ export default {
               content: '',
           }
           this.showForm = true
-          this.$refs.editor.init()
-          this.$refs.form.resetFields()
-          loadData && this.loadData()
+          this.$nextTick(()=>{
+            this.$refs.editor.init()
+            this.$refs.form.resetFields()
+            loadData && this.loadData()
+          })
         },
     },
     watch: {

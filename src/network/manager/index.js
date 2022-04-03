@@ -8,11 +8,13 @@ function login(form) {
   });
 }
 
-function checkLogin(account) {
+function checkLogin(managerToken) {
   return common({
     method: "post",
     url: `/manager/checkLogin`,
-    data: account,
+    data: {
+      managerToken: managerToken,
+    },
   });
 }
 
@@ -34,7 +36,11 @@ function registerManager(form) {
   return common({
     method: "post",
     url: "/manager/register",
-    data: JSON.stringify(form),
+    data: {
+      name: form.name,
+      password: form.password,
+      position: form.position,
+    },
   });
 }
 function deleteManager(id) {
@@ -44,11 +50,15 @@ function deleteManager(id) {
   });
 }
 function updateManager(form) {
-  console.log(form);
   return common({
     method: "post",
     url: "/manager/update",
-    data: form,
+    data: {
+      id: form.id,
+      name: form.name,
+      password: form.password,
+      position: form.position,
+    },
   });
 }
 
@@ -63,6 +73,13 @@ function verifyPassword(id, password) {
   });
 }
 
+function getManagerInfo(sessionId) {
+  return common({
+    method: "post",
+    url: `/manager/getManagerInfo/${sessionId}`,
+  });
+}
+
 export default {
   login,
   checkLogin,
@@ -72,4 +89,5 @@ export default {
   updateManager,
   verifyPassword,
   getManager,
+  getManagerInfo,
 };
